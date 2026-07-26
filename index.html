@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronos Memory Clash - Juego de Memoria Táctica Multijugador</title>
+  <meta name="description" content="Juego multijugador por turnos de memoria con temporizador, modos de dificultad 4x4, 6x6 y 8x8, animaciones 3D y personalización premium.">
+  <!-- Google Fonts para tipografía moderna -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Hojas de estilo modulares -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/board.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <!-- Canvas para partículas y confeti de victoria -->
+  <canvas id="fx-canvas"></canvas>
+
+  <!-- Barra de navegación principal -->
+  <header class="navbar">
+    <div class="navbar-brand" id="nav-brand">
+      <span class="logo-icon">⚡</span>
+      <h1 class="logo-text">CHRONOS <span class="highlight">MEMORY</span></h1>
+    </div>
+    <div class="navbar-controls">
+      <!-- Selector de Idioma -->
+      <div class="control-group">
+        <label for="lang-select" class="sr-only" data-i18n="lang_label">Idioma:</label>
+        <select id="lang-select" class="ui-select" title="Cambiar Idioma">
+          <option value="es">🇪🇸 ES</option>
+          <option value="en">🇺🇸 EN</option>
+          <option value="pt">🇧🇷 PT</option>
+        </select>
+      </div>
+      <!-- Selector de Tema (Blanco / Negro / Neón) -->
+      <div class="control-group">
+        <button id="theme-toggle" class="ui-btn-icon" title="Cambiar Tema (Blanco / Negro)" aria-label="Cambiar Tema">
+          <span class="icon-theme">🌙</span>
+          <span class="theme-name" data-i18n="theme_dark">Obsidiana</span>
+        </button>
+      </div>
+      <!-- Botón de Audio -->
+      <div class="control-group">
+        <button id="sound-toggle" class="ui-btn-icon" title="Silenciar / Activar Sonido" aria-label="Audio">
+          <span class="icon-sound">🔊</span>
+        </button>
+      </div>
+      <!-- Botón de Historial / Estadísticas -->
+      <div class="control-group">
+        <button id="nav-stats-btn" class="ui-btn-secondary btn-small" data-i18n="nav_stats">
+          📊 Estadísticas
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor principal de pantallas SPA -->
+  <main class="app-container">
+    
+    <!-- ================= PANTALLA 1: REGISTRO Y PERFILES ================= -->
+    <section id="screen-auth" class="screen active">
+      <div class="glass-card auth-card">
+        <div class="auth-header">
+          <div class="badge" data-i18n="auth_badge">INGRESO DE JUGADORES</div>
+          <h2 data-i18n="auth_title">Registro de Pilotos Tácticos</h2>
+          <p class="subtitle" data-i18n="auth_subtitle">Ingresa tus datos para registrar partidas, estadísticas y rachas de victoria.</p>
+        </div>
+        
+        <div class="players-setup">
+          <!-- Jugador 1 -->
+          <div class="player-input-box" id="p1-box">
+            <div class="player-tag tag-blue" data-i18n="player_1">JUGADOR 1</div>
+            <div class="avatar-selector">
+              <button type="button" class="avatar-btn selected" data-avatar="👨‍🚀">👨‍🚀</button>
+              <button type="button" class="avatar-btn" data-avatar="🧙‍♂️">🧙‍♂️</button>
+              <button type="button" class="avatar-btn" data-avatar="🤖">🤖</button>
+              <button type="button" class="avatar-btn" data-avatar="🦊">🦊</button>
+            </div>
+            <div class="input-wrapper">
+              <label for="p1-name" data-i18n="label_username">Alias del Jugador:</label>
+              <input type="text" id="p1-name" class="ui-input" placeholder="Ej. CyberKnight" value="Jugador 1" maxlength="15" autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Divisor VS -->
+          <div class="vs-divider">
+            <span>VS</span>
+          </div>
+
+          <!-- Jugador 2 (o IA) -->
+          <div class="player-input-box" id="p2-box">
+            <div class="player-tag tag-red" data-i18n="player_2">JUGADOR 2 / IA</div>
+            <div class="avatar-selector">
+              <button type="button" class="avatar-btn selected" data-avatar="👩‍🚀">👩‍🚀</button>
+              <button type="button" class="avatar-btn" data-avatar="🧝‍♀️">🧝‍♀️</button>
+              <button type="button" class="avatar-btn" data-avatar="👾">👾</button>
+              <button type="button" class="avatar-btn" data-avatar="🐉">🐉</button>
+            </div>
+            <div class="input-wrapper">
+              <label for="p2-name" data-i18n="label_username_p2">Alias del Oponente:</label>
+              <input type="text" id="p2-name" class="ui-input" placeholder="Ej. NeonViper / IA" value="Jugador 2" maxlength="15" autocomplete="off">
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-actions">
+          <button id="btn-proceed-lobby" class="ui-btn-primary btn-pulse" data-i18n="btn_proceed_lobby">
+            ⚡ CONFIGURAR PARTIDA ⚡
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANTALLA 2: LOBBY Y CONFIGURACIÓN ================= -->
+    <section id="screen-lobby" class="screen">
+      <div class="glass-card lobby-card">
+        <div class="lobby-header">
+          <button id="btn-back-auth" class="ui-btn-back" title="Volver">←</button>
+          <h2 data-i18n="lobby_title">Configuración de la Batalla</h2>
+          <p class="subtitle" data-i18n="lobby_subtitle">Selecciona el modo de juego, tamaño del tablero y temporizador de turno.</p>
+        </div>
+
+        <div class="config-grid">
+          <!-- Modo de Juego -->
+          <div class="config-item">
+            <label class="config-label" data-i18n="cfg_mode">Modo de Juego</label>
+            <div class="btn-group" id="group-mode">
+              <button type="button" class="option-btn active" data-val="pvp" data-i18n="mode_pvp">👥 Local (P1 vs P2)</button>
+              <button type="button" class="option-btn" data-val="ai" data-i18n="mode_ai">🤖 Contra IA (Solo)</button>
+            </div>
+          </div>
+
+          <!-- Dificultad IA (se muestra si modo es IA) -->
+          <div class="config-item hidden" id="config-ai-level">
+            <label class="config-label" data-i18n="cfg_ai_level">Inteligencia Artificial</label>
+            <div class="btn-group" id="group-ai-level">
+              <button type="button" class="option-btn active" data-val="easy" data-i18n="ai_easy">🌱 Novato</button>
+              <button type="button" class="option-btn" data-val="normal" data-i18n="ai_normal">⚔️ Táctico</button>
+              <button type="button" class="option-btn" data-val="hard" data-i18n="ai_hard">🧠 Maestro Memoria</button>
+            </div>
+          </div>
+
+          <!-- Tamaño del Tablero -->
+          <div class="config-item">
+            <label class="config-label" data-i18n="cfg_board">Tamaño del Tablero</label>
+            <div class="btn-group" id="group-board">
+              <button type="button" class="option-btn active" data-val="4" data-i18n="board_4x4">🟢 4x4 (16 Cartas - Rápido)</button>
+              <button type="button" class="option-btn" data-val="6" data-i18n="board_6x6">🟡 6x6 (36 Cartas - Normal)</button>
+              <button type="button" class="option-btn" data-val="8" data-i18n="board_8x8">🔴 8x8 (64 Cartas - Experto)</button>
+            </div>
+          </div>
+
+          <!-- Temporizador por Turno -->
+          <div class="config-item">
+            <label class="config-label" data-i18n="cfg_timer">Tiempo de Turno (Agotamiento)</label>
+            <div class="btn-group" id="group-timer">
+              <button type="button" class="option-btn" data-val="0" data-i18n="timer_none">♾️ Sin Límite</button>
+              <button type="button" class="option-btn active" data-val="15" data-i18n="timer_15s">⏱️ 15 Segundos</button>
+              <button type="button" class="option-btn" data-val="30" data-i18n="timer_30s">⏱️ 30 Segundos</button>
+              <button type="button" class="option-btn" data-val="45" data-i18n="timer_45s">⏱️ 45 Segundos</button>
+            </div>
+          </div>
+
+          <!-- Temática de Cartas -->
+          <div class="config-item">
+            <label class="config-label" data-i18n="cfg_theme">Temática de Cartas</label>
+            <div class="btn-group" id="group-card-theme">
+              <button type="button" class="option-btn active" data-val="tech" data-i18n="theme_tech">💻 Software & Tech</button>
+              <button type="button" class="option-btn" data-val="emojis" data-i18n="theme_emojis">✨ Emojis Vibrantes</button>
+              <button type="button" class="option-btn" data-val="cosmic" data-i18n="theme_cosmic">🌌 Símbolos Cósmicos</button>
+              <button type="button" class="option-btn" data-val="animals" data-i18n="theme_animals">🦁 Reino Animal</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="lobby-actions">
+          <button id="btn-start-match" class="ui-btn-primary btn-large btn-glow" data-i18n="btn_start_match">
+            🚀 INICIAR PARTIDA 🚀
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PANTALLA 3: TABLERO DE JUEGO ================= -->
+    <section id="screen-game" class="screen">
+      <div class="game-layout">
+        
+        <!-- Panel Superior: Marcadores y Temporizador -->
+        <div class="game-hud glass-panel">
+          <!-- Tarjeta Jugador 1 -->
+          <div class="hud-player active" id="hud-p1">
+            <div class="hud-avatar" id="hud-p1-avatar">👨‍🚀</div>
+            <div class="hud-info">
+              <span class="hud-name" id="hud-p1-name">Jugador 1</span>
+              <div class="hud-score-box">
+                <span class="score-label" data-i18n="score_pairs">Parejas:</span>
+                <span class="score-value" id="hud-p1-score">0</span>
+              </div>
+            </div>
+            <div class="hud-streak" id="hud-p1-streak" title="Racha actual">🔥 0</div>
+          </div>
+
+          <!-- Panel Central: Temporizador del Turno -->
+          <div class="hud-center">
+            <div class="turn-badge" id="turn-indicator" data-i18n="turn_p1">TURNO DE JUGADOR 1</div>
+            
+            <!-- Temporizador Digital y Barra -->
+            <div class="timer-container" id="timer-box">
+              <div class="timer-digital">
+                <span class="timer-icon">⏳</span>
+                <span id="timer-seconds">15</span><span class="timer-unit">s</span>
+              </div>
+              <div class="timer-bar-bg">
+                <div class="timer-bar-fill" id="timer-bar"></div>
+              </div>
+            </div>
+
+            <div class="hud-progress">
+              <span id="pairs-matched-count">0</span> / <span id="pairs-total-count">8</span> <span data-i18n="hud_completed">completadas</span>
+            </div>
+          </div>
+
+          <!-- Tarjeta Jugador 2 -->
+          <div class="hud-player" id="hud-p2">
+            <div class="hud-avatar" id="hud-p2-avatar">👩‍🚀</div>
+            <div class="hud-info">
+              <span class="hud-name" id="hud-p2-name">Jugador 2</span>
+              <div class="hud-score-box">
+                <span class="score-label" data-i18n="score_pairs">Parejas:</span>
+                <span class="score-value" id="hud-p2-score">0</span>
+              </div>
+            </div>
+            <div class="hud-streak" id="hud-p2-streak" title="Racha actual">🔥 0</div>
+          </div>
+        </div>
+
+        <!-- Área del Tablero (Grid de Cartas) -->
+        <div class="board-wrapper">
+          <div id="card-grid" class="card-grid grid-4x4">
+            <!-- Las cartas se generan dinámicamente mediante JS -->
+          </div>
+        </div>
+
+        <!-- Panel Inferior: Controles en Juego -->
+        <div class="game-footer">
+          <button id="btn-pause-game" class="ui-btn-secondary" data-i18n="btn_pause">⏸️ Pausar</button>
+          <button id="btn-resign-game" class="ui-btn-danger" data-i18n="btn_resign">🏳️ Rendirse / Salir</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= PANTALLA 4: ESTADÍSTICAS E HISTORIAL ================= -->
+    <section id="screen-stats" class="screen">
+      <div class="glass-card stats-card">
+        <div class="stats-header">
+          <button id="btn-back-from-stats" class="ui-btn-back" title="Volver">←</button>
+          <h2 data-i18n="stats_title">Salón de la Fama & Registro de Partidas</h2>
+          <p class="subtitle" data-i18n="stats_subtitle">Consulta tus estadísticas acumuladas, rachas históricas y el registro de tus batallas.</p>
+        </div>
+
+        <div class="stats-content">
+          <!-- Selector de jugador registrado -->
+          <div class="stats-filter">
+            <label for="stats-user-select" data-i18n="stats_select_user">Filtrar por Jugador:</label>
+            <select id="stats-user-select" class="ui-select">
+              <!-- Se llena desde localStorage -->
+            </select>
+          </div>
+
+          <!-- Grilla de métricas clave -->
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <span class="metric-icon">🏆</span>
+              <span class="metric-val" id="stat-wins">0</span>
+              <span class="metric-lbl" data-i18n="stat_wins">Victorias</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-icon">⚔️</span>
+              <span class="metric-val" id="stat-played">0</span>
+              <span class="metric-lbl" data-i18n="stat_played">Partidas Jugadas</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-icon">📈</span>
+              <span class="metric-val" id="stat-winrate">0%</span>
+              <span class="metric-lbl" data-i18n="stat_winrate">Tasa de Victoria</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-icon">🔥</span>
+              <span class="metric-val" id="stat-streak">0</span>
+              <span class="metric-lbl" data-i18n="stat_best_streak">Mejor Racha</span>
+            </div>
+          </div>
+
+          <!-- Tabla de Historial de Partidas -->
+          <div class="history-table-wrapper">
+            <h3 data-i18n="history_title">Registro Reciente de Partidas</h3>
+            <table class="ui-table">
+              <thead>
+                <tr>
+                  <th data-i18n="th_date">Fecha</th>
+                  <th data-i18n="th_mode">Modo / Tablero</th>
+                  <th data-i18n="th_players">Encuentro</th>
+                  <th data-i18n="th_winner">Resultado</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+                <!-- Filas generadas dinámicamente -->
+              </tbody>
+            </table>
+            <div id="no-history-msg" class="empty-state" data-i18n="no_history">Aún no hay partidas jugadas. ¡Inicia una batalla ahora!</div>
+          </div>
+        </div>
+
+        <div class="stats-actions">
+          <button id="btn-clear-stats" class="ui-btn-danger btn-small" data-i18n="btn_clear_stats">🗑️ Reiniciar Estadísticas</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= MODALES DE NOTIFICACIÓN Y VICTORIA ================= -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <!-- Modal de Fin de Partida (Victoria / Empate / Derrota) -->
+    <div id="modal-gameover" class="glass-modal hidden">
+      <div class="modal-badge" id="gameover-badge">🏆 ¡VICTORIA TÁCTICA! 🏆</div>
+      <h2 class="modal-title" id="gameover-title">¡Jugador 1 Gana la Batalla!</h2>
+      
+      <div class="gameover-avatars">
+        <div class="winner-avatar" id="gameover-avatar">👨‍🚀</div>
+      </div>
+
+      <p class="modal-summary" id="gameover-summary">Ha demostrado una memoria cibernética excepcional al dominar el tablero.</p>
+
+      <div class="gameover-stats-grid">
+        <div class="stat-card">
+          <span class="stat-lbl" id="go-p1-name">Jugador 1</span>
+          <span class="stat-num" id="go-p1-score">10 parejas</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-lbl" id="go-p2-name">Jugador 2</span>
+          <span class="stat-num" id="go-p2-score">8 parejas</span>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button id="btn-rematch" class="ui-btn-primary btn-glow" data-i18n="btn_rematch">🔄 Revancha Inmediata</button>
+        <button id="btn-modal-lobby" class="ui-btn-secondary" data-i18n="btn_back_lobby">🏠 Volver al Lobby</button>
+      </div>
+    </div>
+
+    <!-- Modal de Alerta Rápida / Pausa / Mensaje de Turno Agotado -->
+    <div id="modal-alert" class="glass-modal small-modal hidden">
+      <div class="alert-icon" id="alert-icon">⏰</div>
+      <h3 id="alert-title">¡Tiempo Agotado!</h3>
+      <p id="alert-msg">El tiempo se ha agotado. El turno pasa al siguiente jugador.</p>
+      <div class="modal-buttons">
+        <button id="btn-alert-ok" class="ui-btn-primary">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts modulares en orden de dependencia -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

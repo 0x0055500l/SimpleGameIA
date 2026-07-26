@@ -1,0 +1,400 @@
+/* ==========================================================================
+   CHRONOS MEMORY CLASH - TABLERO DE JUEGO & CARTAS 3D
+   Estilos específicos para la arena de juego, grids 4x4, 6x6, 8x8 y HUD
+   ========================================================================== */
+
+/* --- Layout Principal de la Arena de Juego --- */
+.game-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* --- Panel Superior (HUD) --- */
+.game-hud {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.25rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-player {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--card-bg);
+  border: 2px solid transparent;
+  padding: 0.8rem 1.25rem;
+  border-radius: 16px;
+  min-width: 220px;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.hud-player.active {
+  border-color: var(--accent-blue);
+  background: rgba(0, 240, 255, 0.08);
+  box-shadow: 0 0 20px var(--accent-blue-glow);
+  transform: scale(1.03);
+}
+
+#hud-p2.active {
+  border-color: var(--accent-red);
+  background: rgba(255, 0, 85, 0.08);
+  box-shadow: 0 0 20px var(--accent-red-glow);
+}
+
+.hud-avatar {
+  font-size: 2.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  width: 55px;
+  height: 55px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hud-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-name {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud-score-box {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.score-value {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--accent-blue);
+}
+
+#hud-p2 .score-value {
+  color: var(--accent-red);
+}
+
+.hud-streak {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, var(--accent-yellow), #ff6a00);
+  color: #000;
+  font-weight: 900;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+  box-shadow: 0 4px 10px rgba(255, 184, 0, 0.4);
+  opacity: 0;
+  transform: scale(0);
+  transition: all var(--transition-normal);
+}
+
+.hud-streak.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* --- Panel Central (Temporizador y Turnos) --- */
+.hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.turn-badge {
+  font-weight: 900;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-blue);
+  background: rgba(0, 240, 255, 0.1);
+  padding: 0.35rem 1.2rem;
+  border-radius: 50px;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.turn-badge.p2-turn {
+  color: var(--accent-red);
+  background: rgba(255, 0, 85, 0.1);
+  border-color: rgba(255, 0, 85, 0.3);
+}
+
+.timer-container {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  max-width: 250px;
+}
+
+.timer-digital {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  min-width: 65px;
+}
+
+.timer-icon {
+  font-size: 1.1rem;
+  margin-right: 0.3rem;
+}
+
+.timer-unit {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-left: 2px;
+}
+
+.timer-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.timer-bar-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+  border-radius: 10px;
+  transition: width 1s linear, background-color var(--transition-fast);
+}
+
+.timer-bar-fill.warning {
+  background: linear-gradient(90deg, var(--accent-yellow), #ff8800);
+}
+
+.timer-bar-fill.danger {
+  background: linear-gradient(90deg, var(--accent-red), #ff0000);
+  animation: pulse-danger 0.5s infinite alternate;
+}
+
+.hud-progress {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* --- Contenedor del Tablero (Grid de Cartas) --- */
+.board-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  min-height: 520px;
+}
+
+.card-grid {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  margin: 0 auto;
+  perspective: 1000px;
+}
+
+/* --- Layouts Diferenciados por Dificultad --- */
+.grid-4x4 {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 550px;
+}
+
+.grid-6x6 {
+  grid-template-columns: repeat(6, 1fr);
+  max-width: 750px;
+  gap: 0.75rem;
+}
+
+.grid-8x8 {
+  grid-template-columns: repeat(8, 1fr);
+  max-width: 950px;
+  gap: 0.5rem;
+}
+
+/* --- Cartas Individuales con Efecto 3D --- */
+.memory-card {
+  aspect-ratio: 3 / 4;
+  position: relative;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  border-radius: 14px;
+  user-select: none;
+}
+
+.memory-card:hover:not(.flipped):not(.matched) {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.memory-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.memory-card.matched {
+  transform: rotateY(180deg) scale(0.96);
+  cursor: default;
+  pointer-events: none;
+}
+
+/* --- Caras de las Cartas (Frente y Reverso) --- */
+.card-face-down, .card-face-up {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Cara oculta (Reverso / Patrón del juego) */
+.card-face-down {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  background-image: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.1) 0%, transparent 80%),
+                    linear-gradient(45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.03) 75%, transparent 75%, transparent);
+  background-size: 100% 100%, 20px 20px;
+  transition: all var(--transition-fast);
+}
+
+html[data-theme="light"] .card-face-down {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  background-image: radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.08) 0%, transparent 80%);
+}
+
+.card-face-down::after {
+  content: '⚡';
+  font-size: 1.8rem;
+  opacity: 0.6;
+  filter: drop-shadow(0 0 5px var(--accent-blue));
+  transition: all var(--transition-fast);
+}
+
+.grid-6x6 .card-face-down::after { font-size: 1.4rem; }
+.grid-8x8 .card-face-down::after { font-size: 1.1rem; }
+
+.memory-card:hover .card-face-down {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 15px var(--accent-blue-glow);
+}
+
+.memory-card:hover .card-face-down::after {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* Cara revelada (Frente / Contenido) */
+.card-face-up {
+  background: var(--bg-secondary);
+  border: 2px solid var(--accent-blue);
+  transform: rotateY(180deg);
+  font-size: 2.8rem;
+  box-shadow: 0 0 20px var(--accent-blue-glow);
+}
+
+html[data-theme="light"] .card-face-up {
+  background: #ffffff;
+  border-color: var(--accent-blue);
+}
+
+.grid-6x6 .card-face-up { font-size: 2.2rem; }
+.grid-8x8 .card-face-up { font-size: 1.6rem; border-width: 1.5px; }
+
+/* --- Estados Especiales de Carta --- */
+.memory-card.matched .card-face-up {
+  border-color: var(--accent-green);
+  background: radial-gradient(circle, rgba(0, 255, 136, 0.2) 0%, var(--bg-secondary) 100%);
+  box-shadow: 0 0 25px var(--accent-green-glow);
+  animation: card-match-pulse 0.8s ease;
+}
+
+html[data-theme="light"] .memory-card.matched .card-face-up {
+  background: radial-gradient(circle, rgba(5, 150, 105, 0.15) 0%, #ffffff 100%);
+  border-color: var(--accent-green);
+}
+
+.memory-card.error .card-face-up {
+  border-color: var(--accent-red);
+  background: radial-gradient(circle, rgba(255, 0, 85, 0.2) 0%, var(--bg-secondary) 100%);
+  box-shadow: 0 0 25px var(--accent-red-glow);
+  animation: card-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* --- Panel Inferior --- */
+.game-footer {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* ================= RESPONSIVE ADAPTATIONS ================= */
+@media (max-width: 850px) {
+  .game-hud {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .hud-player {
+    width: 100%;
+    justify-content: center;
+  }
+  .hud-center {
+    width: 100%;
+    order: -1;
+  }
+  .grid-6x6 { gap: 0.5rem; }
+  .grid-8x8 { gap: 0.3rem; }
+  .card-face-up { font-size: 2rem; }
+  .grid-6x6 .card-face-up { font-size: 1.6rem; }
+  .grid-8x8 .card-face-up { font-size: 1.2rem; }
+}
+
+@media (max-width: 480px) {
+  .grid-4x4 { gap: 0.5rem; }
+  .grid-6x6 { gap: 0.3rem; }
+  .grid-8x8 { gap: 0.2rem; }
+}
