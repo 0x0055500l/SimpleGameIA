@@ -90,9 +90,9 @@ game/
 Debido a que el proyecto utiliza la arquitectura moderna de **Módulos ES6 nativos de JavaScript** (`<script type="module">`), el navegador requiere que los archivos sean servidos mediante un servidor web local (HTTP) para gestionar correctamente los permisos de seguridad y CORS.
 
 ### Paso 1: Abrir la terminal en el directorio del proyecto
-Abre tu consola o terminal (PowerShell, CMD, Bash o la terminal integrada de VS Code) y ubícate dentro de la carpeta:
+Abre tu consola o terminal (PowerShell, CMD, Bash o la terminal integrada de VS Code) y ubícate dentro de la carpeta del proyecto:
 ```powershell
-cd c:\Users\Alejandro\Documents\game
+cd ruta/a/tu/proyecto/game
 ```
 
 ### Paso 2: Iniciar un servidor local
@@ -103,7 +103,6 @@ Si tienes Python instalado, ejecuta el módulo de servidor HTTP:
 ```powershell
 python -m http.server 8000
 ```
-*(Actualmente este comando se encuentra en ejecución en el puerto 8000 de tu entorno).*
 
 #### Opción B: Con Node.js / npx
 Si tienes Node.js instalado, puedes usar el servidor estático `serve`:
